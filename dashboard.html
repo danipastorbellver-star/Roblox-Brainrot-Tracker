@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Roblox Brainrot Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --panel: #14141d;
+    --panel-2: #1c1c28;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --muted: #8888a0;
+    --accent: #ff4d6d;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --blue: #60a5fa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1.5;
+    padding: 24px;
+    background-image:
+      radial-gradient(at 20% 0%, rgba(255,77,109,0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, rgba(96,165,250,0.06) 0px, transparent 50%);
+    min-height: 100vh;
+  }
+  header {
+    display: flex; justify-content: space-between; align-items: end;
+    margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+  }
+  h1 {
+    font-size: 32px; font-weight: 700; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ff4d6d, #ffa64d);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .updated { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.red { color: var(--red); }
+
+  .controls { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .btn {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    padding: 8px 14px; border-radius: 8px; font-family: inherit; font-size: 13px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+  @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .panel h2 { font-size: 16px; font-weight: 500; margin-bottom: 16px; color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-weight: 500; padding: 10px 8px;
+       border-bottom: 1px solid var(--border); font-size: 11px;
+       text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; user-select: none; }
+  th:hover { color: var(--text); }
+  td { padding: 12px 8px; border-bottom: 1px solid var(--border); }
+  tr { cursor: pointer; transition: background 0.1s; }
+  tr:hover { background: var(--panel-2); }
+  tr.selected { background: rgba(255, 77, 109, 0.08); }
+  .name { font-weight: 500; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+  .growth { font-family: 'JetBrains Mono', monospace; text-align: right; font-weight: 700; }
+  .growth.pos { color: var(--green); }
+  .growth.neg { color: var(--red); }
+  .growth.neu { color: var(--muted); }
+
+  .chart-wrap { position: relative; height: 320px; }
+  .selected-name { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .selected-name strong { color: var(--text); font-size: 15px; display: block; }
+
+  .empty { text-align: center; padding: 40px; color: var(--muted); }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    background: rgba(74, 222, 128, 0.15); color: var(--green);
+    margin-left: 6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Roblox Brainrot Tracker</h1>
+    <div class="subtitle">Análisis diario de player counts &amp; tasas de crecimiento</div>
+  </div>
+  <div class="updated" id="updated">cargando…</div>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls">
+  <button class="btn active" data-sort="growth_24h">Top crecimiento 24h</button>
+  <button class="btn" data-sort="growth_7d">Top crecimiento 7d</button>
+  <button class="btn" data-sort="players">Por players</button>
+  <button class="btn" data-sort="name">Por nombre</button>
+</div>
+
+<div class="grid">
+  <div class="panel">
+    <h2>Juegos rastreados</h2>
+    <div style="max-height: 520px; overflow-y: auto;">
+      <table id="table">
+        <thead>
+          <tr>
+            <th>Juego</th>
+            <th class="num">Players</th>
+            <th class="num">24h</th>
+            <th class="num">7d</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Histórico de player count</h2>
+    <div class="selected-name" id="selname"><strong>—</strong>Haz click en una fila</div>
+    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  </div>
+</div>
+
+<script>
+const FALLBACK_DATA = {
+  updated_at: new Date().toISOString(),
+  total_games: 0,
+  games: [],
+  _demo: true
+};
+
+let DATA = null, CHART = null, CURRENT_SORT = "growth_24h", SELECTED = null;
+
+function fmtNum(n) {
+  if (n == null) return "—";
+  if (n >= 1e6) return (n/1e6).toFixed(1) + "M";
+  if (n >= 1e3) return (n/1e3).toFixed(1) + "K";
+  return n.toLocaleString();
+}
+function fmtPct(p) {
+  if (p == null) return "—";
+  return (p > 0 ? "+" : "") + p.toFixed(1) + "%";
+}
+function pctClass(p) {
+  if (p == null) return "neu";
+  if (p > 0) return "pos";
+  if (p < 0) return "neg";
+  return "neu";
+}
+
+function renderStats() {
+  const games = DATA.games;
+  if (!games.length) {
+    document.getElementById("stats").innerHTML =
+      `<div class="stat"><div class="stat-label">Sin datos</div><div class="stat-value">—</div></div>`;
+    return;
+  }
+  const totalPlayers = games.reduce((s, g) => s + (g.players || 0), 0);
+  const withGrowth = games.filter(g => g.growth_24h != null);
+  const rising = withGrowth.filter(g => g.growth_24h > 5).length;
+  const falling = withGrowth.filter(g => g.growth_24h < -5).length;
+  const best = withGrowth.length
+    ? withGrowth.reduce((a, b) => a.growth_24h > b.growth_24h ? a : b)
+    : null;
+  document.getElementById("stats").innerHTML = `
+    <div class="stat">
+      <div class="stat-label">Juegos rastreados</div>
+      <div class="stat-value">${games.length}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Players totales</div>
+      <div class="stat-value">${fmtNum(totalPlayers)}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Subiendo 24h</div>
+      <div class="stat-value green">${rising}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Bajando 24h</div>
+      <div class="stat-value red">${falling}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Top mover 24h</div>
+      <div class="stat-value green" style="font-size: 16px;">${best ? best.name.slice(0,18) : "—"}</div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green);">
+        ${best ? fmtPct(best.growth_24h) : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderTable() {
+  const games = [...DATA.games];
+  const sortKey = CURRENT_SORT;
+  games.sort((a, b) => {
+    if (sortKey === "name") return a.name.localeCompare(b.name);
+    const av = a[sortKey] ?? -Infinity;
+    const bv = b[sortKey] ?? -Infinity;
+    return bv - av;
+  });
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = games.map(g => `
+    <tr data-pid="${g.place_id}" class="${g.place_id === SELECTED ? 'selected' : ''}">
+      <td class="name" title="${g.name}">${g.name}</td>
+      <td class="num">${fmtNum(g.players)}</td>
+      <td class="growth ${pctClass(g.growth_24h)}">${fmtPct(g.growth_24h)}</td>
+      <td class="growth ${pctClass(g.growth_7d)}">${fmtPct(g.growth_7d)}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="4" class="empty">Sin juegos. Ejecuta tracker.py al menos una vez.</td></tr>`;
+
+  tbody.querySelectorAll("tr").forEach(tr => {
+    tr.addEventListener("click", () => {
+      const pid = parseInt(tr.dataset.pid);
+      SELECTED = pid;
+      renderTable();
+      renderChart();
+    });
+  });
+}
+
+function renderChart() {
+  const game = DATA.games.find(g => g.place_id === SELECTED) || DATA.games[0];
+  if (!game) return;
+  document.getElementById("selname").innerHTML =
+    `<strong>${game.name}</strong>${fmtNum(game.players)} jugadores · ${game.history.length} snapshots`;
+
+  const labels = game.history.map(h => {
+    const d = new Date(h.ts);
+    return d.toLocaleDateString('es', { month:'short', day:'numeric' }) +
+           ' ' + d.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' });
+  });
+  const data = game.history.map(h => h.players);
+
+  if (CHART) CHART.destroy();
+  const ctx = document.getElementById("chart").getContext("2d");
+  CHART = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        borderColor: '#ff4d6d',
+        backgroundColor: 'rgba(255,77,109,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: '#ff4d6d',
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#8888a0', maxTicksLimit: 6 }, grid: { color: '#2a2a3a' } },
+        y: { ticks: { color: '#8888a0', callback: fmtNum }, grid: { color: '#2a2a3a' }, beginAtZero: false }
+      }
+    }
+  });
+}
+
+function setupControls() {
+  document.querySelectorAll(".btn[data-sort]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".btn[data-sort]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      CURRENT_SORT = btn.dataset.sort;
+      renderTable();
+    });
+  });
+}
+
+async function init() {
+  try {
+    const r = await fetch("./data/dashboard.json?_=" + Date.now());
+    if (!r.ok) throw new Error("no data");
+    DATA = await r.json();
+  } catch (e) {
+    DATA = FALLBACK_DATA;
+  }
+  document.getElementById("updated").textContent =
+    DATA.updated_at
+      ? "Última actualización: " + new Date(DATA.updated_at).toLocaleString('es')
+      : "Sin datos — ejecuta tracker.py";
+  if (DATA.games.length) SELECTED = DATA.games[0].place_id;
+  renderStats();
+  renderTable();
+  renderChart();
+  setupControls();
+}
+
+init();
+</script>
+
+</body>
+</html>

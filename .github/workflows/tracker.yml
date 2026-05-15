@@ -1,0 +1,50 @@
+name: Roblox Tracker
+
+on:
+  schedule:
+    - cron: "0 9 * * *"   # cada día 09:00 UTC
+  workflow_dispatch:       # permite ejecución manual
+
+permissions:
+  contents: write          # para commitear data/tracker.db
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Ejecutar tracker
+        run: python tracker.py
+
+      - name: Exportar dashboard JSON
+        run: python export_dashboard.py
+
+      - name: Enviar reporte por Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python notifier.py
+
+      - name: Reporte semanal (solo lunes)
+        if: github.event.schedule == '0 9 * * *' && fromJSON(format('"{0}"', github.run_started_at))
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ "$(date -u +%u)" = "1" ]; then python notifier.py --weekly; fi
+
+      - name: Commit cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --staged --quiet || git commit -m "track: $(date -u +%Y-%m-%d)"
+          git push

@@ -1,0 +1,771 @@
+{
+  "updated_at": "2026-05-15T19:49:17.187257+00:00",
+  "total_games": 45,
+  "games": [
+    {
+      "place_id": 92416421522960,
+      "universe_id": 9792947201,
+      "name": "Slime RNG",
+      "players": 264200,
+      "visits": 153643990,
+      "favorites": 1390584,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 264200
+        }
+      ],
+      "url": "https://www.roblox.com/games/92416421522960"
+    },
+    {
+      "place_id": 109983668079237,
+      "universe_id": 7709344486,
+      "name": "Steal a Brainrot",
+      "players": 240175,
+      "visits": 68491674831,
+      "favorites": 27973998,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 240175
+        }
+      ],
+      "url": "https://www.roblox.com/games/109983668079237"
+    },
+    {
+      "place_id": 89469502395769,
+      "universe_id": 10004244222,
+      "name": "Kick a Lucky Block",
+      "players": 206700,
+      "visits": 470525406,
+      "favorites": 12992851,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 206700
+        }
+      ],
+      "url": "https://www.roblox.com/games/89469502395769"
+    },
+    {
+      "place_id": 95082159892680,
+      "universe_id": 9584852943,
+      "name": "[W2] +1 Speed Keyboard Escape | Candy & Chocolate",
+      "players": 91248,
+      "visits": 297583634,
+      "favorites": 669022,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 91248
+        }
+      ],
+      "url": "https://www.roblox.com/games/95082159892680"
+    },
+    {
+      "place_id": 15532962292,
+      "universe_id": 5361032378,
+      "name": "Sol's RNG [ Eon 1 - 21\ud83e\ude90]",
+      "players": 62891,
+      "visits": 1857722147,
+      "favorites": 942034,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 62891
+        }
+      ],
+      "url": "https://www.roblox.com/games/15532962292"
+    },
+    {
+      "place_id": 126884695634066,
+      "universe_id": 7436755782,
+      "name": "[\ud83d\udc1d] Grow a Garden \ud83c\udf36\ufe0f",
+      "players": 60511,
+      "visits": 35341179036,
+      "favorites": 10938059,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 60511
+        }
+      ],
+      "url": "https://www.roblox.com/games/126884695634066"
+    },
+    {
+      "place_id": 16732694052,
+      "universe_id": 5750914919,
+      "name": "Fisch \ud83c\udf00 [ENCHANT UPDATE]",
+      "players": 49383,
+      "visits": 4449265296,
+      "favorites": 3347569,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 49383
+        }
+      ],
+      "url": "https://www.roblox.com/games/16732694052"
+    },
+    {
+      "place_id": 114204398207377,
+      "universe_id": 9348272796,
+      "name": "Survive Zombie Arena",
+      "players": 45275,
+      "visits": 154054508,
+      "favorites": 111839,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 45275
+        }
+      ],
+      "url": "https://www.roblox.com/games/114204398207377"
+    },
+    {
+      "place_id": 16146832113,
+      "universe_id": 5578556129,
+      "name": "Anime Vanguards",
+      "players": 41494,
+      "visits": 1892945568,
+      "favorites": 1883753,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 41494
+        }
+      ],
+      "url": "https://www.roblox.com/games/16146832113"
+    },
+    {
+      "place_id": 5233782396,
+      "universe_id": 1831550657,
+      "name": "\ud83c\udf0a Creatures of Sonaria \ud83e\udd91 Survive Kaiju Animals",
+      "players": 38281,
+      "visits": 1967517687,
+      "favorites": 9927208,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 38281
+        }
+      ],
+      "url": "https://www.roblox.com/games/5233782396"
+    },
+    {
+      "place_id": 18923620224,
+      "universe_id": 6409513651,
+      "name": "[RELEASE\ud83c\udf89] Anime Warriors III",
+      "players": 36682,
+      "visits": 5985849,
+      "favorites": 174347,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 36682
+        }
+      ],
+      "url": "https://www.roblox.com/games/18923620224"
+    },
+    {
+      "place_id": 131623223084840,
+      "universe_id": 9363735110,
+      "name": "Escape Tsunami For Brainrots!",
+      "players": 26554,
+      "visits": 5527046186,
+      "favorites": 1939103,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 26554
+        }
+      ],
+      "url": "https://www.roblox.com/games/131623223084840"
+    },
+    {
+      "place_id": 90148635862803,
+      "universe_id": 9098570654,
+      "name": "[\u231b] \ud83e\udddf Survive the Apocalypse",
+      "players": 24076,
+      "visits": 117415712,
+      "favorites": 188532,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 24076
+        }
+      ],
+      "url": "https://www.roblox.com/games/90148635862803"
+    },
+    {
+      "place_id": 7711635737,
+      "universe_id": 2992873140,
+      "name": "Emergency Hamburg",
+      "players": 21951,
+      "visits": 1267026832,
+      "favorites": 939743,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 21951
+        }
+      ],
+      "url": "https://www.roblox.com/games/7711635737"
+    },
+    {
+      "place_id": 75839707976715,
+      "universe_id": 9526307912,
+      "name": "[\ud83d\udc12] Escape The ZOO!",
+      "players": 20952,
+      "visits": 29527442,
+      "favorites": 53316,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 20952
+        }
+      ],
+      "url": "https://www.roblox.com/games/75839707976715"
+    },
+    {
+      "place_id": 110334393584385,
+      "universe_id": 10004760418,
+      "name": "Roller for Brainrots!",
+      "players": 16643,
+      "visits": 59219690,
+      "favorites": 77893,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 16643
+        }
+      ],
+      "url": "https://www.roblox.com/games/110334393584385"
+    },
+    {
+      "place_id": 140409475718339,
+      "universe_id": 9073513091,
+      "name": "[SBR+AOT] Anime Apocalypse",
+      "players": 15152,
+      "visits": 41807477,
+      "favorites": 71894,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 15152
+        }
+      ],
+      "url": "https://www.roblox.com/games/140409475718339"
+    },
+    {
+      "place_id": 119048529960596,
+      "universe_id": 7094518649,
+      "name": "[\u26f1\ufe0f] Restaurant Tycoon 3",
+      "players": 15085,
+      "visits": 271782501,
+      "favorites": 672551,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 15085
+        }
+      ],
+      "url": "https://www.roblox.com/games/119048529960596"
+    },
+    {
+      "place_id": 109908567838703,
+      "universe_id": 10015834582,
+      "name": "[\u2622\ufe0f] Nuke for Brainrot",
+      "players": 14783,
+      "visits": 24031309,
+      "favorites": 27257,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 14783
+        }
+      ],
+      "url": "https://www.roblox.com/games/109908567838703"
+    },
+    {
+      "place_id": 84332574190497,
+      "universe_id": 9998576154,
+      "name": "+1 Wings for Brainrots \ud83e\udd85",
+      "players": 14559,
+      "visits": 17798860,
+      "favorites": 1365322,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 14559
+        }
+      ],
+      "url": "https://www.roblox.com/games/84332574190497"
+    },
+    {
+      "place_id": 77440920242306,
+      "universe_id": 9917678692,
+      "name": "Draw Wheels to Escape \u270f\ufe0f",
+      "players": 14242,
+      "visits": 25611410,
+      "favorites": 27308,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 14242
+        }
+      ],
+      "url": "https://www.roblox.com/games/77440920242306"
+    },
+    {
+      "place_id": 8712817601,
+      "universe_id": 3310460039,
+      "name": "\ud83d\udea8BARRY'S PRISON RUN! (OBBY)",
+      "players": 13831,
+      "visits": 4355768415,
+      "favorites": 105041986,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 13831
+        }
+      ],
+      "url": "https://www.roblox.com/games/8712817601"
+    },
+    {
+      "place_id": 76285745979410,
+      "universe_id": 9362896961,
+      "name": "[2x\ud83c\udf40] Anime Card Collection",
+      "players": 13558,
+      "visits": 112971760,
+      "favorites": 192885,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 13558
+        }
+      ],
+      "url": "https://www.roblox.com/games/76285745979410"
+    },
+    {
+      "place_id": 119741101026672,
+      "universe_id": 8705454731,
+      "name": "Escape 99 Rooms\ud83d\udd11",
+      "players": 12611,
+      "visits": 48671793,
+      "favorites": 469403,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 12611
+        }
+      ],
+      "url": "https://www.roblox.com/games/119741101026672"
+    },
+    {
+      "place_id": 116766451305209,
+      "universe_id": 7585079192,
+      "name": "Anime Story 2 [Re-Release] ",
+      "players": 12291,
+      "visits": 15958330,
+      "favorites": 76381,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 12291
+        }
+      ],
+      "url": "https://www.roblox.com/games/116766451305209"
+    },
+    {
+      "place_id": 124473577469410,
+      "universe_id": 9787206684,
+      "name": "Be a Lucky Block",
+      "players": 10917,
+      "visits": 673949935,
+      "favorites": 2751369,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 10917
+        }
+      ],
+      "url": "https://www.roblox.com/games/124473577469410"
+    },
+    {
+      "place_id": 2534724415,
+      "universe_id": 903807016,
+      "name": "Emergency Response: Liberty County",
+      "players": 10782,
+      "visits": 1489542671,
+      "favorites": 2769098,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 10782
+        }
+      ],
+      "url": "https://www.roblox.com/games/2534724415"
+    },
+    {
+      "place_id": 4639625707,
+      "universe_id": 1526814825,
+      "name": "[EOD] War Tycoon",
+      "players": 10571,
+      "visits": 1024561696,
+      "favorites": 4148952,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 10571
+        }
+      ],
+      "url": "https://www.roblox.com/games/4639625707"
+    },
+    {
+      "place_id": 92122513197996,
+      "universe_id": 9145063979,
+      "name": "\u26cf\ufe0fDig to Escape",
+      "players": 10396,
+      "visits": 439255974,
+      "favorites": 413301,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 10396
+        }
+      ],
+      "url": "https://www.roblox.com/games/92122513197996"
+    },
+    {
+      "place_id": 98033586806203,
+      "universe_id": 9898609049,
+      "name": "[\ud83c\udf54] Get HEAVY for Brainrots",
+      "players": 9105,
+      "visits": 13457372,
+      "favorites": 17783,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 9105
+        }
+      ],
+      "url": "https://www.roblox.com/games/98033586806203"
+    },
+    {
+      "place_id": 115394135656997,
+      "universe_id": 9929086116,
+      "name": "+1 Speed Wings Escape \ud83e\udd85",
+      "players": 8658,
+      "visits": 22070647,
+      "favorites": 1935141,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 8658
+        }
+      ],
+      "url": "https://www.roblox.com/games/115394135656997"
+    },
+    {
+      "place_id": 1554960397,
+      "universe_id": 605887098,
+      "name": "\ud83d\udc8eFURAI! Car Dealership Tycoon",
+      "players": 7746,
+      "visits": 2475872353,
+      "favorites": 3640749,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 7746
+        }
+      ],
+      "url": "https://www.roblox.com/games/1554960397"
+    },
+    {
+      "place_id": 127380660530951,
+      "universe_id": 7058980030,
+      "name": "Survive Overnight in a Mega Store",
+      "players": 7723,
+      "visits": 480886673,
+      "favorites": 812365,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 7723
+        }
+      ],
+      "url": "https://www.roblox.com/games/127380660530951"
+    },
+    {
+      "place_id": 110829983956014,
+      "universe_id": 6682487255,
+      "name": "[\ud83c\udfa9 \ud83d\udd31] Anime Card Clash",
+      "players": 7660,
+      "visits": 427933690,
+      "favorites": 208415,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 7660
+        }
+      ],
+      "url": "https://www.roblox.com/games/110829983956014"
+    },
+    {
+      "place_id": 136066387156306,
+      "universe_id": 10051853469,
+      "name": "[Infinity \u267e\ufe0f]Be Flash For Brainrots!",
+      "players": 7324,
+      "visits": 9370790,
+      "favorites": 230774,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 7324
+        }
+      ],
+      "url": "https://www.roblox.com/games/136066387156306"
+    },
+    {
+      "place_id": 119271610514030,
+      "universe_id": 9491545867,
+      "name": "[ZONE 3] Break a Brainrot Egg!",
+      "players": 7169,
+      "visits": 75609004,
+      "favorites": 897698,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 7169
+        }
+      ],
+      "url": "https://www.roblox.com/games/119271610514030"
+    },
+    {
+      "place_id": 69184822,
+      "universe_id": 31970568,
+      "name": "Theme Park Tycoon 2",
+      "players": 6792,
+      "visits": 1565535198,
+      "favorites": 6023606,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 6792
+        }
+      ],
+      "url": "https://www.roblox.com/games/69184822"
+    },
+    {
+      "place_id": 130247632398296,
+      "universe_id": 9266873836,
+      "name": "[\ud83c\udf3aSPRING UPD\ud83c\udf3a] Anime Fighting Simulator: Endless",
+      "players": 6649,
+      "visits": 145748025,
+      "favorites": 127564,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 6649
+        }
+      ],
+      "url": "https://www.roblox.com/games/130247632398296"
+    },
+    {
+      "place_id": 88207898227053,
+      "universe_id": 10045085816,
+      "name": "Build Bridge to Brainrots",
+      "players": 5976,
+      "visits": 8528419,
+      "favorites": 14852,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 5976
+        }
+      ],
+      "url": "https://www.roblox.com/games/88207898227053"
+    },
+    {
+      "place_id": 100744519298647,
+      "universe_id": 7798947148,
+      "name": "[GEAR5] Anime Final Quest",
+      "players": 5571,
+      "visits": 106882322,
+      "favorites": 257026,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 5571
+        }
+      ],
+      "url": "https://www.roblox.com/games/100744519298647"
+    },
+    {
+      "place_id": 6205205961,
+      "universe_id": 2274830359,
+      "name": "Escape Running Head",
+      "players": 5517,
+      "visits": 2881120416,
+      "favorites": 1922781,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 5517
+        }
+      ],
+      "url": "https://www.roblox.com/games/6205205961"
+    },
+    {
+      "place_id": 105626692504093,
+      "universe_id": 9875383684,
+      "name": "Be a Brainrot",
+      "players": 5406,
+      "visits": 150637063,
+      "favorites": 165496,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 5406
+        }
+      ],
+      "url": "https://www.roblox.com/games/105626692504093"
+    },
+    {
+      "place_id": 8246874626,
+      "universe_id": 3164075108,
+      "name": "[Mentors] Dragon Soul | Anime MMO \ud83d\udc32",
+      "players": 5206,
+      "visits": 259613264,
+      "favorites": 700730,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 5206
+        }
+      ],
+      "url": "https://www.roblox.com/games/8246874626"
+    },
+    {
+      "place_id": 114998660298420,
+      "universe_id": 9122463229,
+      "name": "[\ud83d\ude80] Steal a Latamrot",
+      "players": 0,
+      "visits": null,
+      "favorites": null,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 0
+        }
+      ],
+      "url": "https://www.roblox.com/games/114998660298420"
+    },
+    {
+      "place_id": 127080713564152,
+      "universe_id": 9129640671,
+      "name": "\ud83c\udf0e Steal a Latamrot",
+      "players": 0,
+      "visits": null,
+      "favorites": null,
+      "growth_24h": null,
+      "growth_7d": null,
+      "history": [
+        {
+          "ts": "2026-05-15T19:49:17.187257+00:00",
+          "players": 0
+        }
+      ],
+      "url": "https://www.roblox.com/games/127080713564152"
+    }
+  ]
+}
