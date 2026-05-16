@@ -2,312 +2,879 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Roblox Brainrot Tracker</title>
+<title>Brainrot Tracker — Roblox</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0a0a0f;
-    --panel: #14141d;
-    --panel-2: #1c1c28;
-    --border: #2a2a3a;
-    --text: #e8e8f0;
-    --muted: #8888a0;
-    --accent: #ff4d6d;
-    --green: #4ade80;
-    --red: #f87171;
-    --yellow: #fbbf24;
-    --blue: #60a5fa;
+    --bg:        #0d0c0a;
+    --bg-grain:  #100f0d;
+    --panel:     #16140f;
+    --panel-2:   #1d1a13;
+    --panel-3:   #252118;
+    --border:    #2e2a20;
+    --border-2:  #3d3828;
+    --text:      #f0ebe0;
+    --text-2:    #b8b0a0;
+    --muted:     #756e60;
+    --muted-2:   #4d4a40;
+
+    --hot:       #ff6b35;   /* naranja explosivo */
+    --hot-bg:    rgba(255, 107, 53, 0.12);
+    --warm:      #ffb347;   /* amber subiendo */
+    --warm-bg:   rgba(255, 179, 71, 0.12);
+    --good:      #9ed957;   /* lima creciendo */
+    --good-bg:   rgba(158, 217, 87, 0.12);
+    --calm:      #6ec8c4;   /* teal estable */
+    --calm-bg:   rgba(110, 200, 196, 0.12);
+    --cool:      #8a92a8;   /* gris bajando */
+    --cool-bg:   rgba(138, 146, 168, 0.12);
+    --cold:      #6b5a5a;   /* marrón decayendo */
+    --cold-bg:   rgba(107, 90, 90, 0.15);
   }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overscroll-behavior: none; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Sora', sans-serif;
     line-height: 1.5;
-    padding: 24px;
-    background-image:
-      radial-gradient(at 20% 0%, rgba(255,77,109,0.08) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, rgba(96,165,250,0.06) 0px, transparent 50%);
+    font-weight: 400;
+    padding: 0;
     min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 1200px 600px at 15% -10%, rgba(255,107,53,0.06), transparent 60%),
+      radial-gradient(ellipse 900px 500px at 100% 100%, rgba(110,200,196,0.04), transparent 60%);
   }
+
+  /* Sutil grain */
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 32px 28px 60px; position: relative; z-index: 1; }
+
+  /* ── Header ───────────────────────────────────────── */
   header {
-    display: flex; justify-content: space-between; align-items: end;
-    margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 40px; padding-bottom: 24px;
+    border-bottom: 1px solid var(--border); gap: 24px; flex-wrap: wrap;
   }
-  h1 {
-    font-size: 32px; font-weight: 700; letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #ff4d6d, #ffa64d);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .brand-line { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .brand {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 44px; letter-spacing: -0.02em; line-height: 1; color: var(--text);
   }
-  .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
-  .updated { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
-
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 28px; }
-  .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
-  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-  .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; margin-top: 4px; }
-  .stat-value.green { color: var(--green); }
-  .stat-value.red { color: var(--red); }
-
-  .controls { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .btn {
-    background: var(--panel); border: 1px solid var(--border); color: var(--text);
-    padding: 8px 14px; border-radius: 8px; font-family: inherit; font-size: 13px;
-    cursor: pointer; transition: all 0.15s;
+  .brand-accent { color: var(--hot); }
+  .tag {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--border-2);
+    padding: 4px 10px; border-radius: 100px; font-weight: 500;
   }
-  .btn:hover { border-color: var(--accent); }
-  .btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .tagline { color: var(--text-2); font-size: 14px; margin-top: 6px; max-width: 480px; }
 
-  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
-  @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  .meta { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .meta-label { text-transform: uppercase; letter-spacing: 0.1em; }
+  .meta-val { color: var(--text-2); font-size: 12px; margin-top: 2px; }
 
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
-  .panel h2 { font-size: 16px; font-weight: 500; margin-bottom: 16px; color: var(--text); }
+  /* ── Hero stats ────────────────────────────────────── */
+  .hero {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px; background: var(--border); border-radius: 14px; overflow: hidden;
+    margin-bottom: 40px; border: 1px solid var(--border);
+  }
+  .hero-cell { background: var(--panel); padding: 22px 24px; }
+  .hero-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 8px; }
+  .hero-val {
+    font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 500;
+    letter-spacing: -0.02em; color: var(--text); line-height: 1;
+  }
+  .hero-sub { font-size: 12px; color: var(--text-2); margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+  .hero-val.hot { color: var(--hot); }
+  .hero-val.good { color: var(--good); }
+  .hero-val.cool { color: var(--cool); }
 
+  /* ── Section heading ──────────────────────────────── */
+  .section-head { display: flex; justify-content: space-between; align-items: flex-end; margin: 36px 0 20px; gap: 16px; flex-wrap: wrap; }
+  .section-title {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 28px; line-height: 1; color: var(--text); letter-spacing: -0.01em;
+  }
+  .section-sub { font-size: 13px; color: var(--text-2); margin-top: 6px; }
+
+  /* ── Watchlist (top candidatos) ──────────────────── */
+  .watchlist {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px; margin-bottom: 16px;
+  }
+  .watch-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 18px 14px; cursor: pointer;
+    transition: all 0.2s ease; position: relative; overflow: hidden;
+  }
+  .watch-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--bar-color, var(--hot)); transition: width 0.2s;
+  }
+  .watch-card:hover { border-color: var(--border-2); transform: translateY(-1px); }
+  .watch-card:hover::before { width: 5px; }
+  .watch-rank {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: 0.1em;
+  }
+  .watch-name {
+    font-size: 15px; font-weight: 500; color: var(--text); margin: 4px 0 12px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .watch-stats { display: flex; align-items: baseline; gap: 14px; }
+  .watch-players {
+    font-family: 'JetBrains Mono', monospace; font-size: 22px;
+    color: var(--text); font-weight: 500; line-height: 1;
+  }
+  .watch-growth {
+    font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700;
+  }
+  .watch-meta {
+    margin-top: 10px; display: flex; gap: 14px; font-size: 11px;
+    color: var(--muted); font-family: 'JetBrains Mono', monospace;
+  }
+  .spark { margin-top: 10px; height: 28px; width: 100%; opacity: 0.7; }
+
+  /* ── Controls ──────────────────────────────────────── */
+  .controls {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; align-items: center;
+  }
+  .search {
+    flex: 1; min-width: 200px; max-width: 340px;
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--text); font-family: inherit; font-size: 14px;
+    padding: 10px 14px; border-radius: 10px; outline: none; transition: border 0.15s;
+  }
+  .search:focus { border-color: var(--hot); }
+  .search::placeholder { color: var(--muted); }
+
+  .filter-group { display: flex; gap: 4px; background: var(--panel); padding: 4px; border-radius: 10px; border: 1px solid var(--border); }
+  .filter-btn {
+    background: transparent; border: none; color: var(--text-2);
+    padding: 7px 13px; border-radius: 7px; font-family: inherit; font-size: 12px;
+    cursor: pointer; transition: all 0.15s; font-weight: 500;
+  }
+  .filter-btn:hover { color: var(--text); }
+  .filter-btn.active { background: var(--panel-3); color: var(--text); }
+
+  /* ── Main grid ─────────────────────────────────────── */
+  .grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+  }
+  .panel-head {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .panel-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .panel-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+
+  /* ── Table ────────────────────────────────────────── */
+  .table-wrap { max-height: 640px; overflow-y: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; color: var(--muted); font-weight: 500; padding: 10px 8px;
-       border-bottom: 1px solid var(--border); font-size: 11px;
-       text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; user-select: none; }
-  th:hover { color: var(--text); }
-  td { padding: 12px 8px; border-bottom: 1px solid var(--border); }
+  thead { position: sticky; top: 0; background: var(--panel); z-index: 1; }
+  th {
+    text-align: left; padding: 12px 14px; color: var(--muted);
+    font-weight: 500; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.1em; border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  th:hover { color: var(--text-2); }
+  th.sortable::after { content: ' ↕'; opacity: 0.3; font-size: 11px; }
+  th.sort-asc::after { content: ' ↑'; opacity: 1; color: var(--hot); }
+  th.sort-desc::after { content: ' ↓'; opacity: 1; color: var(--hot); }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   tr { cursor: pointer; transition: background 0.1s; }
   tr:hover { background: var(--panel-2); }
-  tr.selected { background: rgba(255, 77, 109, 0.08); }
-  .name { font-weight: 500; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .num { font-family: 'JetBrains Mono', monospace; text-align: right; }
-  .growth { font-family: 'JetBrains Mono', monospace; text-align: right; font-weight: 700; }
-  .growth.pos { color: var(--green); }
-  .growth.neg { color: var(--red); }
-  .growth.neu { color: var(--muted); }
+  tr.selected { background: rgba(255, 107, 53, 0.06); }
+  tr.selected td:first-child { box-shadow: inset 3px 0 0 var(--hot); }
 
-  .chart-wrap { position: relative; height: 320px; }
-  .selected-name { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
-  .selected-name strong { color: var(--text); font-size: 15px; display: block; }
+  .name-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .num { font-family: 'JetBrains Mono', monospace; text-align: right; font-variant-numeric: tabular-nums; }
 
-  .empty { text-align: center; padding: 40px; color: var(--muted); }
-  .badge {
-    display: inline-block; padding: 2px 8px; border-radius: 999px;
+  /* Status badges */
+  .status {
+    display: inline-flex; align-items: center; gap: 5px;
     font-size: 10px; font-weight: 700; text-transform: uppercase;
-    background: rgba(74, 222, 128, 0.15); color: var(--green);
-    margin-left: 6px;
+    letter-spacing: 0.06em; padding: 3px 8px; border-radius: 5px;
+    white-space: nowrap;
   }
+  .status.hot   { background: var(--hot-bg);  color: var(--hot); }
+  .status.warm  { background: var(--warm-bg); color: var(--warm); }
+  .status.good  { background: var(--good-bg); color: var(--good); }
+  .status.calm  { background: var(--calm-bg); color: var(--calm); }
+  .status.cool  { background: var(--cool-bg); color: var(--cool); }
+  .status.cold  { background: var(--cold-bg); color: var(--cold); }
+  .status.new   { background: var(--panel-3); color: var(--text-2); }
+
+  .pct { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+  .pct.pos { color: var(--good); }
+  .pct.pos-strong { color: var(--hot); }
+  .pct.neg { color: var(--cool); }
+  .pct.neu { color: var(--muted); }
+
+  td .spark-cell { width: 80px; height: 22px; opacity: 0.7; }
+
+  /* Heat score visualization */
+  .heat-bar { display: flex; align-items: center; gap: 8px; }
+  .heat-num { font-family: 'JetBrains Mono', monospace; font-weight: 700; min-width: 32px; text-align: right; }
+  .heat-bg {
+    width: 50px; height: 5px; background: var(--panel-3);
+    border-radius: 3px; overflow: hidden;
+  }
+  .heat-fg { height: 100%; background: linear-gradient(90deg, var(--cool), var(--warm), var(--hot)); }
+
+  /* ── Detail panel ─────────────────────────────────── */
+  .detail { padding: 20px; }
+  .detail-header { margin-bottom: 18px; }
+  .detail-name {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 24px; line-height: 1.1; color: var(--text); margin-bottom: 6px;
+  }
+  .detail-link {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--muted); text-decoration: none;
+  }
+  .detail-link:hover { color: var(--hot); }
+
+  .detail-stats {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+    background: var(--border); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; margin-bottom: 18px;
+  }
+  .ds-cell { background: var(--panel); padding: 12px 14px; }
+  .ds-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .ds-val { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: var(--text); font-weight: 500; }
+  .ds-val.small { font-size: 13px; }
+
+  .chart-controls { display: flex; gap: 4px; margin-bottom: 12px; justify-content: flex-end; }
+  .chart-wrap { position: relative; height: 280px; }
+  .empty {
+    padding: 40px 20px; text-align: center; color: var(--muted); font-size: 13px;
+  }
+  .empty strong { color: var(--text-2); display: block; margin-bottom: 6px; font-size: 14px; }
+
+  /* ── Footer ───────────────────────────────────────── */
+  footer { margin-top: 50px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+  footer code { font-family: 'JetBrains Mono', monospace; color: var(--text-2); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
 </style>
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>Roblox Brainrot Tracker</h1>
-    <div class="subtitle">Análisis diario de player counts &amp; tasas de crecimiento</div>
+<div class="container">
+
+  <header>
+    <div>
+      <div class="brand-line">
+        <h1 class="brand">brainrot<span class="brand-accent">.</span>tracker</h1>
+        <span class="tag">roblox · v2</span>
+      </div>
+      <p class="tagline">Vigilando el próximo viral. Player counts, aceleración y heat score actualizados a diario.</p>
+    </div>
+    <div class="meta">
+      <div class="meta-label">Última actualización</div>
+      <div class="meta-val" id="updated">—</div>
+    </div>
+  </header>
+
+  <!-- Hero KPIs -->
+  <section class="hero" id="hero"></section>
+
+  <!-- Watchlist: top heat score -->
+  <div class="section-head">
+    <div>
+      <h2 class="section-title">Top a vigilar</h2>
+      <div class="section-sub">Ordenados por <strong>heat score</strong> · combina crecimiento, aceleración y magnitud</div>
+    </div>
   </div>
-  <div class="updated" id="updated">cargando…</div>
-</header>
+  <section class="watchlist" id="watchlist"></section>
 
-<div class="stats" id="stats"></div>
-
-<div class="controls">
-  <button class="btn active" data-sort="growth_24h">Top crecimiento 24h</button>
-  <button class="btn" data-sort="growth_7d">Top crecimiento 7d</button>
-  <button class="btn" data-sort="players">Por players</button>
-  <button class="btn" data-sort="name">Por nombre</button>
-</div>
-
-<div class="grid">
-  <div class="panel">
-    <h2>Juegos rastreados</h2>
-    <div style="max-height: 520px; overflow-y: auto;">
-      <table id="table">
-        <thead>
-          <tr>
-            <th>Juego</th>
-            <th class="num">Players</th>
-            <th class="num">24h</th>
-            <th class="num">7d</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+  <!-- Controls -->
+  <div class="section-head">
+    <div>
+      <h2 class="section-title">Todos los juegos</h2>
+      <div class="section-sub">Click en una fila para ver el detalle a la derecha</div>
+    </div>
+  </div>
+  <div class="controls">
+    <input type="text" class="search" id="search" placeholder="Buscar por nombre…">
+    <div class="filter-group" id="status-filter">
+      <button class="filter-btn active" data-status="all">Todos</button>
+      <button class="filter-btn" data-status="hot">🚀 Explosivos</button>
+      <button class="filter-btn" data-status="warm">🔥 Subiendo</button>
+      <button class="filter-btn" data-status="good">📈 Creciendo</button>
+      <button class="filter-btn" data-status="cool">📉 Bajando</button>
     </div>
   </div>
 
-  <div class="panel">
-    <h2>Histórico de player count</h2>
-    <div class="selected-name" id="selname"><strong>—</strong>Haz click en una fila</div>
-    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  <div class="grid">
+    <!-- Tabla -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Ranking</span>
+        <span class="panel-count" id="row-count">—</span>
+      </div>
+      <div class="table-wrap">
+        <table id="table">
+          <thead>
+            <tr>
+              <th>Estado</th>
+              <th class="sortable sort-desc" data-sort="heat">Heat</th>
+              <th>Juego</th>
+              <th>Tendencia</th>
+              <th class="num sortable" data-sort="players">Players</th>
+              <th class="num sortable" data-sort="growth_24h">24h</th>
+              <th class="num sortable" data-sort="growth_7d">7d</th>
+              <th class="num sortable" data-sort="acceleration">Accel.</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Panel de detalle -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Detalle</span>
+      </div>
+      <div class="detail" id="detail"></div>
+    </div>
   </div>
+
+  <footer>
+    <p>Datos vía API de Rolimons + games.roblox.com · actualizado por GitHub Actions · <code>github.com/tu-repo</code></p>
+  </footer>
+
 </div>
 
 <script>
-const FALLBACK_DATA = {
-  updated_at: new Date().toISOString(),
-  total_games: 0,
-  games: [],
-  _demo: true
+//──────────────────────────────────────────────────────────────────────────────
+// Mock data para preview (si no hay dashboard.json todavía)
+//──────────────────────────────────────────────────────────────────────────────
+const FALLBACK = { updated_at: null, total_games: 0, games: [], _empty: true };
+
+//──────────────────────────────────────────────────────────────────────────────
+// Helpers
+//──────────────────────────────────────────────────────────────────────────────
+const fmt = {
+  num(n) {
+    if (n == null) return "—";
+    if (n >= 1e9) return (n/1e9).toFixed(2) + "B";
+    if (n >= 1e6) return (n/1e6).toFixed(1) + "M";
+    if (n >= 1e3) return (n/1e3).toFixed(1) + "K";
+    return n.toLocaleString('es');
+  },
+  pct(p) {
+    if (p == null) return "—";
+    return (p > 0 ? "+" : "") + p.toFixed(1) + "%";
+  },
+  pp(p) {
+    if (p == null) return "—";
+    return (p > 0 ? "+" : "") + p.toFixed(1) + "pp";
+  },
+  date(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return d.toLocaleString('es', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+  }
 };
 
-let DATA = null, CHART = null, CURRENT_SORT = "growth_24h", SELECTED = null;
+// Status según growth 24h
+function getStatus(g) {
+  if (g.growth_24h == null) return { key: "new",  label: "Nuevo",     icon: "✨" };
+  const v = g.growth_24h;
+  if (v >= 30)   return { key: "hot",  label: "Explosivo", icon: "🚀" };
+  if (v >= 10)   return { key: "warm", label: "Subiendo",  icon: "🔥" };
+  if (v >= 2)    return { key: "good", label: "Creciendo", icon: "📈" };
+  if (v >= -2)   return { key: "calm", label: "Estable",   icon: "➡️" };
+  if (v >= -10)  return { key: "cool", label: "Bajando",   icon: "📉" };
+  return         { key: "cold", label: "Decayendo", icon: "💀" };
+}
 
-function fmtNum(n) {
-  if (n == null) return "—";
-  if (n >= 1e6) return (n/1e6).toFixed(1) + "M";
-  if (n >= 1e3) return (n/1e3).toFixed(1) + "K";
-  return n.toLocaleString();
+// Heat Score: combina crecimiento + aceleración + escala
+// Pensado para detectar juegos "calentándose" — penaliza decaimiento
+function calcHeatScore(g) {
+  if (g.growth_24h == null) return 0;
+  const growth = g.growth_24h;
+  const accel  = g.acceleration ?? 0;
+  const players = Math.max(g.players || 0, 1);
+  const playersLog = Math.log10(players);   // 1K→3, 10K→4, 100K→5
+  // Ratio engagement (players actuales / visits totales) bonifica si el juego está
+  // teniendo proporcionalmente muchos jugadores ahora (señal de actividad reciente)
+  const ratio = g.player_visit_ratio ?? 0;
+
+  let score = growth * 1.5 + accel * 2.5 + playersLog * 5 + Math.min(ratio * 0.3, 8);
+  // Penalización si está bajando fuerte
+  if (growth < -10) score -= 15;
+  return Math.max(0, Math.round(score));
 }
-function fmtPct(p) {
-  if (p == null) return "—";
-  return (p > 0 ? "+" : "") + p.toFixed(1) + "%";
-}
+
 function pctClass(p) {
   if (p == null) return "neu";
+  if (p >= 20) return "pos-strong";
   if (p > 0) return "pos";
   if (p < 0) return "neg";
   return "neu";
 }
 
-function renderStats() {
+// Sparkline mini SVG
+function sparkline(history, width = 80, height = 22, color = '#9ed957') {
+  if (!history || history.length < 2) {
+    return `<svg class="spark-cell" width="${width}" height="${height}"></svg>`;
+  }
+  const vals = history.map(h => h.players);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const pts = vals.map((v, i) => {
+    const x = (i / (vals.length - 1)) * (width - 2) + 1;
+    const y = height - 2 - ((v - min) / range) * (height - 4);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const last = vals[vals.length - 1];
+  const first = vals[0];
+  const trendColor = last > first ? '#9ed957' : last < first ? '#8a92a8' : '#756e60';
+  return `<svg class="spark-cell" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="${trendColor}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${(width-1).toFixed(1)}" cy="${(height - 2 - ((last - min) / range) * (height - 4)).toFixed(1)}" r="2" fill="${trendColor}"/>
+  </svg>`;
+}
+
+//──────────────────────────────────────────────────────────────────────────────
+// Estado global
+//──────────────────────────────────────────────────────────────────────────────
+let DATA = null;
+let CHART = null;
+let SELECTED_ID = null;
+let CHART_RANGE = 'all'; // '7d' | '30d' | 'all'
+let SORT_KEY = 'heat';
+let SORT_DIR = 'desc';
+let FILTER_STATUS = 'all';
+let SEARCH_TERM = '';
+
+//──────────────────────────────────────────────────────────────────────────────
+// Render: Hero KPIs
+//──────────────────────────────────────────────────────────────────────────────
+function renderHero() {
   const games = DATA.games;
+  const hero = document.getElementById('hero');
+
   if (!games.length) {
-    document.getElementById("stats").innerHTML =
-      `<div class="stat"><div class="stat-label">Sin datos</div><div class="stat-value">—</div></div>`;
+    hero.innerHTML = `<div class="hero-cell" style="grid-column: 1/-1; text-align: center;">
+      <div class="hero-label">sin datos</div>
+      <div class="hero-val" style="font-size: 18px;">Ejecuta tracker.py al menos una vez</div>
+    </div>`;
     return;
   }
+
+  const total = games.length;
   const totalPlayers = games.reduce((s, g) => s + (g.players || 0), 0);
+  const hot = games.filter(g => g.growth_24h != null && g.growth_24h >= 10).length;
+  const cooling = games.filter(g => g.growth_24h != null && g.growth_24h < -5).length;
   const withGrowth = games.filter(g => g.growth_24h != null);
-  const rising = withGrowth.filter(g => g.growth_24h > 5).length;
-  const falling = withGrowth.filter(g => g.growth_24h < -5).length;
-  const best = withGrowth.length
-    ? withGrowth.reduce((a, b) => a.growth_24h > b.growth_24h ? a : b)
-    : null;
-  document.getElementById("stats").innerHTML = `
-    <div class="stat">
-      <div class="stat-label">Juegos rastreados</div>
-      <div class="stat-value">${games.length}</div>
+  const avgGrowth = withGrowth.length
+    ? withGrowth.reduce((s, g) => s + g.growth_24h, 0) / withGrowth.length
+    : 0;
+
+  hero.innerHTML = `
+    <div class="hero-cell">
+      <div class="hero-label">Juegos rastreados</div>
+      <div class="hero-val">${total}</div>
+      <div class="hero-sub">candidatos brainrot</div>
     </div>
-    <div class="stat">
-      <div class="stat-label">Players totales</div>
-      <div class="stat-value">${fmtNum(totalPlayers)}</div>
+    <div class="hero-cell">
+      <div class="hero-label">Players totales ahora</div>
+      <div class="hero-val">${fmt.num(totalPlayers)}</div>
+      <div class="hero-sub">en este momento</div>
     </div>
-    <div class="stat">
-      <div class="stat-label">Subiendo 24h</div>
-      <div class="stat-value green">${rising}</div>
+    <div class="hero-cell">
+      <div class="hero-label">🔥 Calentándose (≥+10%)</div>
+      <div class="hero-val hot">${hot}</div>
+      <div class="hero-sub">vigilar de cerca</div>
     </div>
-    <div class="stat">
-      <div class="stat-label">Bajando 24h</div>
-      <div class="stat-value red">${falling}</div>
+    <div class="hero-cell">
+      <div class="hero-label">📉 Enfriándose (&lt;−5%)</div>
+      <div class="hero-val cool">${cooling}</div>
+      <div class="hero-sub">perdiendo tracción</div>
     </div>
-    <div class="stat">
-      <div class="stat-label">Top mover 24h</div>
-      <div class="stat-value green" style="font-size: 16px;">${best ? best.name.slice(0,18) : "—"}</div>
-      <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green);">
-        ${best ? fmtPct(best.growth_24h) : ""}
-      </div>
+    <div class="hero-cell">
+      <div class="hero-label">Crecimiento medio 24h</div>
+      <div class="hero-val ${avgGrowth > 0 ? 'good' : 'cool'}">${fmt.pct(avgGrowth)}</div>
+      <div class="hero-sub">media del ecosistema</div>
     </div>
   `;
 }
 
-function renderTable() {
-  const games = [...DATA.games];
-  const sortKey = CURRENT_SORT;
-  games.sort((a, b) => {
-    if (sortKey === "name") return a.name.localeCompare(b.name);
-    const av = a[sortKey] ?? -Infinity;
-    const bv = b[sortKey] ?? -Infinity;
-    return bv - av;
-  });
-  const tbody = document.querySelector("#table tbody");
-  tbody.innerHTML = games.map(g => `
-    <tr data-pid="${g.place_id}" class="${g.place_id === SELECTED ? 'selected' : ''}">
-      <td class="name" title="${g.name}">${g.name}</td>
-      <td class="num">${fmtNum(g.players)}</td>
-      <td class="growth ${pctClass(g.growth_24h)}">${fmtPct(g.growth_24h)}</td>
-      <td class="growth ${pctClass(g.growth_7d)}">${fmtPct(g.growth_7d)}</td>
-    </tr>
-  `).join("") || `<tr><td colspan="4" class="empty">Sin juegos. Ejecuta tracker.py al menos una vez.</td></tr>`;
+//──────────────────────────────────────────────────────────────────────────────
+// Render: Watchlist (top 4 por heat score, solo subiendo)
+//──────────────────────────────────────────────────────────────────────────────
+function renderWatchlist() {
+  const container = document.getElementById('watchlist');
+  const top = DATA.games
+    .filter(g => g.growth_24h != null && g.growth_24h > 0)
+    .map(g => ({ ...g, _heat: calcHeatScore(g), _status: getStatus(g) }))
+    .sort((a, b) => b._heat - a._heat)
+    .slice(0, 4);
 
-  tbody.querySelectorAll("tr").forEach(tr => {
-    tr.addEventListener("click", () => {
-      const pid = parseInt(tr.dataset.pid);
-      SELECTED = pid;
-      renderTable();
-      renderChart();
-    });
+  if (!top.length) {
+    container.innerHTML = `<div class="empty" style="grid-column: 1/-1;">
+      <strong>Aún no hay candidatos calientes</strong>
+      Necesitas al menos 2 días de datos para empezar a detectar crecimiento.
+    </div>`;
+    return;
+  }
+
+  const colors = { hot: '#ff6b35', warm: '#ffb347', good: '#9ed957' };
+
+  container.innerHTML = top.map((g, i) => `
+    <div class="watch-card" data-pid="${g.place_id}" style="--bar-color:${colors[g._status.key] || '#9ed957'}">
+      <div class="watch-rank">#${i+1} · HEAT ${g._heat}</div>
+      <div class="watch-name" title="${escapeHtml(g.name)}">${escapeHtml(g.name)}</div>
+      <div class="watch-stats">
+        <span class="watch-players">${fmt.num(g.players)}</span>
+        <span class="watch-growth" style="color:${colors[g._status.key]}">${fmt.pct(g.growth_24h)}</span>
+      </div>
+      <div class="watch-meta">
+        <span>Accel ${fmt.pp(g.acceleration)}</span>
+        <span>7d ${fmt.pct(g.growth_7d)}</span>
+      </div>
+      ${sparkline(g.history, 220, 28, colors[g._status.key])}
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.watch-card').forEach(card => {
+    card.addEventListener('click', () => selectGame(parseInt(card.dataset.pid)));
   });
 }
 
-function renderChart() {
-  const game = DATA.games.find(g => g.place_id === SELECTED) || DATA.games[0];
-  if (!game) return;
-  document.getElementById("selname").innerHTML =
-    `<strong>${game.name}</strong>${fmtNum(game.players)} jugadores · ${game.history.length} snapshots`;
+//──────────────────────────────────────────────────────────────────────────────
+// Render: Tabla
+//──────────────────────────────────────────────────────────────────────────────
+function renderTable() {
+  let games = DATA.games.map(g => ({
+    ...g, _heat: calcHeatScore(g), _status: getStatus(g)
+  }));
 
-  const labels = game.history.map(h => {
-    const d = new Date(h.ts);
-    return d.toLocaleDateString('es', { month:'short', day:'numeric' }) +
-           ' ' + d.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' });
+  // Filtros
+  if (FILTER_STATUS !== 'all') {
+    games = games.filter(g => g._status.key === FILTER_STATUS);
+  }
+  if (SEARCH_TERM) {
+    const q = SEARCH_TERM.toLowerCase();
+    games = games.filter(g => g.name.toLowerCase().includes(q));
+  }
+
+  // Sort
+  games.sort((a, b) => {
+    const av = SORT_KEY === 'heat' ? a._heat : (a[SORT_KEY] ?? -Infinity);
+    const bv = SORT_KEY === 'heat' ? b._heat : (b[SORT_KEY] ?? -Infinity);
+    const diff = SORT_DIR === 'desc' ? bv - av : av - bv;
+    return diff;
   });
-  const data = game.history.map(h => h.players);
+
+  document.getElementById('row-count').textContent = `${games.length} juego${games.length === 1 ? '' : 's'}`;
+
+  const tbody = document.querySelector('#table tbody');
+  if (!games.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">Sin resultados con estos filtros.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = games.map(g => {
+    const st = g._status;
+    const heatPct = Math.min(g._heat / 80, 1) * 100;
+    return `
+      <tr data-pid="${g.place_id}" class="${g.place_id === SELECTED_ID ? 'selected' : ''}">
+        <td><span class="status ${st.key}">${st.icon} ${st.label}</span></td>
+        <td>
+          <div class="heat-bar">
+            <span class="heat-num">${g._heat}</span>
+            <span class="heat-bg"><span class="heat-fg" style="width:${heatPct}%"></span></span>
+          </div>
+        </td>
+        <td class="name-cell" title="${escapeHtml(g.name)}">${escapeHtml(g.name)}</td>
+        <td>${sparkline(g.history)}</td>
+        <td class="num">${fmt.num(g.players)}</td>
+        <td class="num pct ${pctClass(g.growth_24h)}">${fmt.pct(g.growth_24h)}</td>
+        <td class="num pct ${pctClass(g.growth_7d)}">${fmt.pct(g.growth_7d)}</td>
+        <td class="num pct ${pctClass(g.acceleration)}">${fmt.pp(g.acceleration)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  tbody.querySelectorAll('tr').forEach(tr => {
+    if (tr.dataset.pid) {
+      tr.addEventListener('click', () => selectGame(parseInt(tr.dataset.pid)));
+    }
+  });
+}
+
+//──────────────────────────────────────────────────────────────────────────────
+// Render: Panel detalle + gráfico
+//──────────────────────────────────────────────────────────────────────────────
+function renderDetail() {
+  const detail = document.getElementById('detail');
+  const g = DATA.games.find(x => x.place_id === SELECTED_ID) || DATA.games[0];
+
+  if (!g) {
+    detail.innerHTML = `<div class="empty">
+      <strong>Sin datos</strong>
+      Cuando el tracker corra al menos una vez, aquí aparecerá el detalle del juego seleccionado.
+    </div>`;
+    return;
+  }
+
+  const st = getStatus(g);
+  const heat = calcHeatScore(g);
+
+  detail.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-name">${escapeHtml(g.name)}</div>
+      <a class="detail-link" href="${g.url}" target="_blank" rel="noopener">
+        roblox.com/games/${g.place_id} ↗
+      </a>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <span class="status ${st.key}">${st.icon} ${st.label}</span>
+      <span class="status new">HEAT ${heat}</span>
+      ${g.days_tracked >= 2 ? '' : '<span class="status new">✨ Recién detectado</span>'}
+    </div>
+
+    <div class="detail-stats">
+      <div class="ds-cell">
+        <div class="ds-label">Players ahora</div>
+        <div class="ds-val">${fmt.num(g.players)}</div>
+      </div>
+      <div class="ds-cell">
+        <div class="ds-label">Pico histórico</div>
+        <div class="ds-val">${fmt.num(g.peak_players)}</div>
+      </div>
+      <div class="ds-cell">
+        <div class="ds-label">Crecimiento 24h</div>
+        <div class="ds-val ${pctClass(g.growth_24h) === 'pos-strong' || pctClass(g.growth_24h) === 'pos' ? '' : 'small'}"
+             style="color: ${g.growth_24h > 0 ? 'var(--good)' : g.growth_24h < 0 ? 'var(--cool)' : 'inherit'}">
+          ${fmt.pct(g.growth_24h)}
+        </div>
+      </div>
+      <div class="ds-cell">
+        <div class="ds-label">Crecimiento 7d</div>
+        <div class="ds-val"
+             style="color: ${g.growth_7d > 0 ? 'var(--good)' : g.growth_7d < 0 ? 'var(--cool)' : 'inherit'}">
+          ${fmt.pct(g.growth_7d)}
+        </div>
+      </div>
+      <div class="ds-cell">
+        <div class="ds-label">Aceleración</div>
+        <div class="ds-val small"
+             style="color: ${g.acceleration > 0 ? 'var(--hot)' : g.acceleration < 0 ? 'var(--cool)' : 'inherit'}">
+          ${fmt.pp(g.acceleration)}
+          <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0;">
+            ${g.acceleration > 0 ? 'acelerando' : g.acceleration < 0 ? 'frenando' : ''}
+          </span>
+        </div>
+      </div>
+      <div class="ds-cell">
+        <div class="ds-label">vs pico</div>
+        <div class="ds-val small"
+             style="color: ${g.pct_from_peak === 0 ? 'var(--hot)' : 'var(--text-2)'}">
+          ${fmt.pct(g.pct_from_peak)}
+          <span style="font-size:10px;color:var(--muted);">${g.pct_from_peak === 0 ? '· nuevo máximo' : ''}</span>
+        </div>
+      </div>
+      <div class="ds-cell">
+        <div class="ds-label">Visitas totales</div>
+        <div class="ds-val small">${fmt.num(g.visits)}</div>
+      </div>
+      <div class="ds-cell">
+        <div class="ds-label">Días en seguimiento</div>
+        <div class="ds-val small">${g.days_tracked}</div>
+      </div>
+    </div>
+
+    <div class="chart-controls">
+      <div class="filter-group">
+        <button class="filter-btn ${CHART_RANGE==='7d'?'active':''}"  data-range="7d">7d</button>
+        <button class="filter-btn ${CHART_RANGE==='30d'?'active':''}" data-range="30d">30d</button>
+        <button class="filter-btn ${CHART_RANGE==='all'?'active':''}" data-range="all">Todo</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  `;
+
+  detail.querySelectorAll('[data-range]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      CHART_RANGE = btn.dataset.range;
+      renderDetail();
+    });
+  });
+
+  renderChart(g);
+}
+
+function renderChart(g) {
+  if (!g || !g.history.length) return;
+  let history = g.history;
+  if (CHART_RANGE === '7d') history = history.slice(-7);
+  else if (CHART_RANGE === '30d') history = history.slice(-30);
+
+  const labels = history.map(h => {
+    const d = new Date(h.ts);
+    return d.toLocaleDateString('es', { day:'2-digit', month:'short' });
+  });
+  const data = history.map(h => h.players);
 
   if (CHART) CHART.destroy();
-  const ctx = document.getElementById("chart").getContext("2d");
+  const ctx = document.getElementById('chart').getContext('2d');
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+  gradient.addColorStop(0, 'rgba(255, 107, 53, 0.25)');
+  gradient.addColorStop(1, 'rgba(255, 107, 53, 0)');
+
   CHART = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
       datasets: [{
         data,
-        borderColor: '#ff4d6d',
-        backgroundColor: 'rgba(255,77,109,0.1)',
+        borderColor: '#ff6b35',
+        backgroundColor: gradient,
         fill: true,
-        tension: 0.3,
-        pointRadius: 3,
-        pointBackgroundColor: '#ff4d6d',
+        tension: 0.35,
+        pointRadius: history.length < 30 ? 4 : 2,
+        pointBackgroundColor: '#ff6b35',
+        pointBorderColor: '#16140f',
+        pointBorderWidth: 1.5,
         borderWidth: 2,
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1d1a13',
+          titleColor: '#f0ebe0', bodyColor: '#b8b0a0',
+          borderColor: '#3d3828', borderWidth: 1, padding: 10,
+          titleFont: { family: "'Sora'", weight: '500' },
+          bodyFont: { family: "'JetBrains Mono'" },
+          callbacks: {
+            label: ctx => `${fmt.num(ctx.parsed.y)} jugadores`
+          }
+        }
+      },
       scales: {
-        x: { ticks: { color: '#8888a0', maxTicksLimit: 6 }, grid: { color: '#2a2a3a' } },
-        y: { ticks: { color: '#8888a0', callback: fmtNum }, grid: { color: '#2a2a3a' }, beginAtZero: false }
+        x: {
+          ticks: { color: '#756e60', maxTicksLimit: 7, font: { family: "'JetBrains Mono'", size: 10 } },
+          grid: { color: '#2e2a20', drawTicks: false }
+        },
+        y: {
+          ticks: { color: '#756e60', callback: fmt.num, font: { family: "'JetBrains Mono'", size: 10 } },
+          grid: { color: '#2e2a20', drawTicks: false },
+          beginAtZero: false
+        }
       }
     }
   });
 }
 
+//──────────────────────────────────────────────────────────────────────────────
+// Interacción
+//──────────────────────────────────────────────────────────────────────────────
+function selectGame(pid) {
+  SELECTED_ID = pid;
+  renderTable();
+  renderDetail();
+  // scroll al detalle en móvil
+  if (window.innerWidth < 1100) {
+    document.getElementById('detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 function setupControls() {
-  document.querySelectorAll(".btn[data-sort]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".btn[data-sort]").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      CURRENT_SORT = btn.dataset.sort;
+  // Búsqueda
+  document.getElementById('search').addEventListener('input', e => {
+    SEARCH_TERM = e.target.value;
+    renderTable();
+  });
+
+  // Filtro de estado
+  document.getElementById('status-filter').querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#status-filter .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      FILTER_STATUS = btn.dataset.status;
+      renderTable();
+    });
+  });
+
+  // Sort por click en cabecera
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      if (SORT_KEY === key) {
+        SORT_DIR = SORT_DIR === 'desc' ? 'asc' : 'desc';
+      } else {
+        SORT_KEY = key;
+        SORT_DIR = 'desc';
+      }
+      document.querySelectorAll('th.sortable').forEach(t => {
+        t.classList.remove('sort-asc', 'sort-desc');
+      });
+      th.classList.add(SORT_DIR === 'desc' ? 'sort-desc' : 'sort-asc');
       renderTable();
     });
   });
 }
 
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+//──────────────────────────────────────────────────────────────────────────────
+// Init
+//──────────────────────────────────────────────────────────────────────────────
 async function init() {
   try {
-    const r = await fetch("./data/dashboard.json?_=" + Date.now());
-    if (!r.ok) throw new Error("no data");
+    const r = await fetch('./data/dashboard.json?_=' + Date.now());
+    if (!r.ok) throw new Error('not found');
     DATA = await r.json();
-  } catch (e) {
-    DATA = FALLBACK_DATA;
+  } catch {
+    DATA = FALLBACK;
   }
-  document.getElementById("updated").textContent =
-    DATA.updated_at
-      ? "Última actualización: " + new Date(DATA.updated_at).toLocaleString('es')
-      : "Sin datos — ejecuta tracker.py";
-  if (DATA.games.length) SELECTED = DATA.games[0].place_id;
-  renderStats();
+
+  document.getElementById('updated').textContent =
+    DATA.updated_at ? fmt.date(DATA.updated_at) : 'sin datos';
+
+  if (DATA.games.length) SELECTED_ID = DATA.games[0].place_id;
+
+  renderHero();
+  renderWatchlist();
   renderTable();
-  renderChart();
+  renderDetail();
   setupControls();
 }
 
