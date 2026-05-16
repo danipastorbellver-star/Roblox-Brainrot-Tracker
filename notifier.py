@@ -1,13 +1,14 @@
 """
-notifier.py — Envía un reporte diario por Telegram con el top movers.
+notifier.py — Envía un reporte por Telegram con el top movers de una categoría.
 
 Variables de entorno requeridas:
   TELEGRAM_TOKEN    — token del bot (de @BotFather)
   TELEGRAM_CHAT_ID  — tu chat ID (envía /start a tu bot y mira getUpdates)
 
 Uso:
-  python notifier.py             # reporte diario
-  python notifier.py --weekly    # reporte semanal
+  python notifier.py brainrot            # reporte diario brainrot
+  python notifier.py horror              # reporte diario horror
+  python notifier.py brainrot --weekly   # reporte semanal
 """
 
 import os
@@ -18,13 +19,18 @@ from pathlib import Path
 import requests
 
 ROOT = Path(__file__).parent
-DB_PATH = ROOT / "data" / "tracker.db"
+
+CATEGORIES = {
+    "brainrot": {"label": "Brainrot", "db": ROOT / "data" / "tracker_brainrot.db"},
+    "horror":   {"label": "Horror",   "db": ROOT / "data" / "tracker_horror.db"},
+}
 
 
-def get_top_movers(period_hours: int = 24, top_n: int = 10) -> list[tuple]:
+def get_top_movers(db_path: Path, period_hours: int = 24, top_n: int = 10) -> list[tuple]:
     """Devuelve (name, current, old, growth_pct) ordenado por crecimiento."""
-    con = sqlite3.connect(DB_PATH)
-    # Para cada place_id: snapshot más reciente vs más antiguo en la ventana
+    if not db_path.exists():
+        return []
+    con = sqlite3.connect(db_path)
     rows = con.execute(f"""
         WITH bounds AS (
             SELECT place_id,
@@ -92,11 +98,18 @@ def send_telegram(message: str):
 
 
 if __name__ == "__main__":
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    category = args[0] if args else "brainrot"
     weekly = "--weekly" in sys.argv
-    if weekly:
-        rows = get_top_movers(period_hours=24 * 7)
-        msg = format_report(rows, "Top movers — últimos 7 días")
-    else:
-        rows = get_top_movers(period_hours=24)
-        msg = format_report(rows, "Top movers — últimas 24h")
+
+    if category not in CATEGORIES:
+        print(f"✗ Categoría desconocida: '{category}'. "
+              f"Opciones: {', '.join(CATEGORIES)}", file=sys.stderr)
+        sys.exit(1)
+
+    cfg = CATEGORIES[category]
+    period = 24 * 7 if weekly else 24
+    span = "últimos 7 días" if weekly else "últimas 24h"
+    rows = get_top_movers(cfg["db"], period_hours=period)
+    msg = format_report(rows, f"{cfg['label']} — Top movers ({span})")
     send_telegram(msg)

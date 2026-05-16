@@ -23,14 +23,32 @@ import requests
 
 # ─── Configuración ─────────────────────────────────────────────────────────────
 ROOT = Path(__file__).parent
-DB_PATH = ROOT / "data" / "tracker.db"
 
-# Palabras clave para identificar "brainrot-style". Edita libremente.
-KEYWORDS = [
-    "brainrot", "lucky block", "tsunami", "obby", "steal",
-    "escape", "tycoon", "rng", "skibidi", "merge", "grow a",
-    "race", "survive", "fisch", "anime",
-]
+# ─── Categorías ────────────────────────────────────────────────────────────────
+# Cada categoría tiene su propia lista de keywords y su propia base de datos.
+# Para añadir una nueva categoría, basta con agregar una entrada aquí.
+CATEGORIES = {
+    "brainrot": {
+        "label": "Brainrot",
+        "db": ROOT / "data" / "tracker_brainrot.db",
+        "keywords": [
+            "brainrot", "lucky block", "tsunami", "obby", "steal",
+            "escape", "tycoon", "rng", "skibidi", "merge", "grow a",
+            "race", "survive", "fisch", "anime",
+        ],
+    },
+    "horror": {
+        "label": "Horror",
+        "db": ROOT / "data" / "tracker_horror.db",
+        "keywords": [
+            "horror", "scary", "nightmare", "haunted", "doors",
+            "the mimic", "evade", "specimen", "backrooms", "slender",
+            "granny", "survive the killer", "murder", "asylum",
+            "escape the", "creepy", "monster", "fear", "dead",
+            "apparition", "entity", "midnight", "cursed", "fog",
+        ],
+    },
+}
 
 MIN_PLAYERS = 5_000          # umbral mínimo para empezar a trackear
 MAX_GAMES_TO_TRACK = 200     # tope para no saturar la API
@@ -72,9 +90,9 @@ def get_with_retry(url: str, max_retries: int = 4, timeout: int = 15):
 
 
 # ─── Base de datos ─────────────────────────────────────────────────────────────
-def init_db() -> sqlite3.Connection:
-    DB_PATH.parent.mkdir(exist_ok=True)
-    con = sqlite3.connect(DB_PATH)
+def init_db(db_path: Path) -> sqlite3.Connection:
+    db_path.parent.mkdir(exist_ok=True)
+    con = sqlite3.connect(db_path)
     con.execute("""
         CREATE TABLE IF NOT EXISTS snapshots (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -98,16 +116,15 @@ def init_db() -> sqlite3.Connection:
 # ─── Recolección ──────────────────────────────────────────────────────────────
 def fetch_rolimons_games() -> dict:
     """Devuelve dict {place_id: [name, players, thumb, ...]}."""
-    r = requests.get(ROLIMONS_GAMELIST, timeout=30,
-                     headers={"User-Agent": "roblox-tracker/1.0"})
+    r = requests.get(ROLIMONS_GAMELIST, timeout=30, headers=HEADERS)
     r.raise_for_status()
     data = r.json()
     return data.get("games", {})
 
 
-def matches_keywords(name: str) -> bool:
+def matches_keywords(name: str, keywords: list[str]) -> bool:
     n = name.lower()
-    return any(kw in n for kw in KEYWORDS)
+    return any(kw in n for kw in keywords)
 
 
 def fetch_roblox_details(universe_ids: list[int]) -> list[dict]:
@@ -158,9 +175,18 @@ def place_to_universe(place_ids: list[int]) -> dict[int, int]:
 
 
 # ─── Pipeline principal ────────────────────────────────────────────────────────
-def run():
+def run(category: str):
+    if category not in CATEGORIES:
+        print(f"✗ Categoría desconocida: '{category}'. "
+              f"Opciones: {', '.join(CATEGORIES)}", file=sys.stderr)
+        sys.exit(1)
+
+    cfg = CATEGORIES[category]
+    keywords = cfg["keywords"]
+    db_path = cfg["db"]
+
     now = datetime.now(timezone.utc).isoformat()
-    print(f"▶ Tracker iniciado — {now}")
+    print(f"▶ Tracker [{cfg['label']}] iniciado — {now}")
 
     print("  Descargando lista de juegos desde Rolimons…")
     rolimons = fetch_rolimons_games()
@@ -176,7 +202,7 @@ def run():
             continue
         if players < MIN_PLAYERS:
             continue
-        if not matches_keywords(name):
+        if not matches_keywords(name, keywords):
             continue
         candidates.append((int(place_id_str), name, players))
 
@@ -185,7 +211,7 @@ def run():
     print(f"  Candidatos tras filtro: {len(candidates)}")
 
     if not candidates:
-        print("  No hay candidatos. Revisa MIN_PLAYERS o KEYWORDS.")
+        print("  No hay candidatos. Revisa MIN_PLAYERS o las keywords.")
         return
 
     # Mapea place_id → universe_id para enriquecer
@@ -200,7 +226,7 @@ def run():
     detail_map = {d["id"]: d for d in details}
 
     # Guardar snapshot
-    con = init_db()
+    con = init_db(db_path)
     rows = []
     enriched = 0       # cuántos tienen datos oficiales de Roblox
     fallback = 0       # cuántos usan solo el dato de Rolimons
@@ -245,7 +271,7 @@ def run():
     con.commit()
     con.close()
 
-    print(f"✓ Guardados {len(rows)} snapshots en {DB_PATH}")
+    print(f"✓ Guardados {len(rows)} snapshots en {db_path}")
     print(f"  ├─ {enriched} con datos oficiales de Roblox (visits/favorites incl.)")
     print(f"  ├─ {fallback} con player count de Rolimons (sin enriquecer)")
     if skipped:
@@ -253,8 +279,10 @@ def run():
 
 
 if __name__ == "__main__":
+    # Categoría por argumento: python tracker.py brainrot | horror
+    category = sys.argv[1] if len(sys.argv) > 1 else "brainrot"
     try:
-        run()
+        run(category)
     except requests.RequestException as e:
         print(f"✗ Error de red: {e}", file=sys.stderr)
         sys.exit(1)

@@ -1,16 +1,14 @@
 """
-export_dashboard.py — Exporta el SQLite a un JSON con métricas enriquecidas.
+export_dashboard.py — Exporta los SQLite de cada categoría a un JSON único.
 
-Métricas calculadas por juego:
-  - players, visits, favorites (snapshot actual)
-  - growth_24h, growth_7d (% de crecimiento)
-  - acceleration (cambio en la tasa de crecimiento; +N pp = acelerando)
-  - peak_players, peak_ts (máximo histórico)
-  - pct_from_peak (cuán lejos del pico)
-  - days_tracked (días desde la primera detección)
-  - avg_growth_7d (crecimiento promedio diario en 7 días)
-  - player_visit_ratio (% de visits que están actualmente jugando)
-  - history: serie temporal hasta 60 puntos
+Estructura de salida:
+{
+  "updated_at": "...",
+  "categories": {
+    "brainrot": { "label": "Brainrot", "total_games": N, "games": [...] },
+    "horror":   { "label": "Horror",   "total_games": M, "games": [...] }
+  }
+}
 
 Uso:
   python export_dashboard.py
@@ -22,8 +20,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-DB_PATH = ROOT / "data" / "tracker.db"
 OUT_PATH = ROOT / "data" / "dashboard.json"
+
+# Debe coincidir con CATEGORIES de tracker.py
+CATEGORIES = {
+    "brainrot": {"label": "Brainrot", "db": ROOT / "data" / "tracker_brainrot.db"},
+    "horror":   {"label": "Horror",   "db": ROOT / "data" / "tracker_horror.db"},
+}
 
 
 def pct(new: float, old: float) -> float | None:
@@ -32,12 +35,11 @@ def pct(new: float, old: float) -> float | None:
     return round((new - old) * 100 / old, 2)
 
 
-def export():
-    if not DB_PATH.exists():
-        print(f"✗ No existe {DB_PATH}. Ejecuta tracker.py primero.")
-        return
+def build_category(db_path: Path) -> list[dict]:
+    if not db_path.exists():
+        return []
 
-    con = sqlite3.connect(DB_PATH)
+    con = sqlite3.connect(db_path)
     con.row_factory = sqlite3.Row
 
     latest = con.execute("""
@@ -62,13 +64,11 @@ def export():
         n = len(hist)
         current = hist[-1]["players"] if hist else 0
 
-        # Growth 24h y 7d (asume 1 ejecución diaria)
         g_24h = pct(current, hist[-2]["players"]) if n >= 2 else None
         g_7d = pct(current, hist[-8]["players"]) if n >= 8 else (
             pct(current, hist[0]["players"]) if n >= 2 else None
         )
 
-        # Aceleración: cambio en la tasa de crecimiento (segunda derivada)
         acceleration = None
         if n >= 3:
             g_today = pct(current, hist[-2]["players"])
@@ -79,7 +79,6 @@ def export():
         peak = max(hist, key=lambda h: h["players"]) if hist else None
         pct_from_peak = pct(current, peak["players"]) if peak else None
 
-        # Crecimiento promedio diario en últimos 7 días
         avg_growth_7d = None
         if n >= 3:
             window = hist[-min(7, n):]
@@ -117,14 +116,29 @@ def export():
         })
 
     con.close()
+    return games
+
+
+def export():
+    categories = {}
+    for key, cfg in CATEGORIES.items():
+        games = build_category(cfg["db"])
+        categories[key] = {
+            "label": cfg["label"],
+            "total_games": len(games),
+            "games": games,
+        }
+        print(f"  {cfg['label']}: {len(games)} juegos")
 
     payload = {
         "updated_at": datetime.now(timezone.utc).isoformat(),
-        "total_games": len(games),
-        "games": games,
+        "categories": categories,
     }
+    OUT_PATH.parent.mkdir(exist_ok=True)
     OUT_PATH.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
-    print(f"✓ Exportado: {OUT_PATH} ({len(games)} juegos, {OUT_PATH.stat().st_size:,} bytes)")
+    total = sum(c["total_games"] for c in categories.values())
+    print(f"✓ Exportado: {OUT_PATH} ({total} juegos totales, "
+          f"{OUT_PATH.stat().st_size:,} bytes)")
 
 
 if __name__ == "__main__":

@@ -1,32 +1,34 @@
-# Roblox Brainrot Tracker
+# Roblox Tracker
 
-Sistema de tracking diario de juegos "brainrot-style" en Roblox con análisis de crecimiento, notificaciones por Telegram y dashboard web.
+Sistema de tracking de juegos de Roblox por **categorías** (Brainrot y Horror) con análisis de crecimiento, notificaciones por Telegram y dashboard web con pestañas.
 
 ## Cómo funciona
 
-1. **`tracker.py`** se conecta a la API de Rolimons (lista pública de juegos con player counts) y filtra por palabras clave (`brainrot`, `obby`, `tsunami`, etc.) y mínimo de jugadores (5K por defecto). Luego enriquece con datos oficiales desde `games.roblox.com` y guarda un snapshot en SQLite.
-2. **`notifier.py`** lee el SQLite, calcula crecimiento % vs hace 24h (o 7d), y envía el top 10 movers a Telegram.
-3. **`export_dashboard.py`** vuelca el SQLite a `data/dashboard.json`.
-4. **`dashboard.html`** lee ese JSON y muestra tabla + gráfico interactivo.
-5. **GitHub Actions** ejecuta todo automáticamente cada día a las 9:00 UTC.
+1. **`tracker.py CATEGORÍA`** se conecta a la API de Rolimons y filtra los juegos por las palabras clave de esa categoría + mínimo de jugadores (5K). Enriquece con datos oficiales de `games.roblox.com` y guarda un snapshot en una SQLite **separada por categoría** (`data/tracker_brainrot.db`, `data/tracker_horror.db`).
+2. **`notifier.py CATEGORÍA`** calcula el crecimiento y envía el top 10 movers de esa categoría a Telegram.
+3. **`export_dashboard.py`** vuelca todas las categorías a un único `data/dashboard.json`.
+4. **`dashboard.html`** lee ese JSON y muestra el dashboard con **pestañas para cambiar entre Brainrot y Horror**.
+5. **GitHub Actions** ejecuta Brainrot a las **09:00 UTC** (mañana) y Horror a las **17:00 UTC** (tarde), automáticamente.
+
+Categorías disponibles: `brainrot`, `horror`. Para añadir una nueva, edita el diccionario `CATEGORIES` al principio de `tracker.py` (y replica la entrada en `export_dashboard.py` y `notifier.py`).
 
 ## Implementación paso a paso
 
 ### Paso 1 — Setup local (5 min)
 
 ```bash
-# Clona o copia los archivos a una carpeta
 cd roblox-tracker
 python -m venv venv && source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Primera ejecución de prueba
-python tracker.py
+# Primera ejecución de prueba (una por categoría)
+python tracker.py brainrot
+python tracker.py horror
 ```
 
 Si todo va bien verás algo como:
 ```
-▶ Tracker iniciado — 2026-05-15T...
+▶ Tracker [Brainrot] iniciado — 2026-05-16T...
   Total juegos en Rolimons: 5,400
   Candidatos tras filtro: 87
   ...
