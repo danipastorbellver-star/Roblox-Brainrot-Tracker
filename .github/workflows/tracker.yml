@@ -2,11 +2,22 @@ name: Roblox Tracker
 
 on:
   schedule:
-    - cron: "0 9 * * *"   # cada día 09:00 UTC
-  workflow_dispatch:       # permite ejecución manual
+    - cron: "0 9 * * *"    # 09:00 UTC → tracker BRAINROT (mañana)
+    - cron: "0 17 * * *"   # 17:00 UTC → tracker HORROR (tarde)
+  workflow_dispatch:        # ejecución manual
+    inputs:
+      category:
+        description: "Categoría a trackear (brainrot / horror / both)"
+        required: false
+        default: "both"
 
 permissions:
-  contents: write          # para commitear data/tracker.db
+  contents: write
+
+# Evita que dos ejecuciones pisen el repo a la vez
+concurrency:
+  group: tracker-commit
+  cancel-in-progress: false
 
 jobs:
   track:
@@ -21,30 +32,58 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: Ejecutar tracker
-        run: python tracker.py
+      # Determina qué categoría toca según el horario o el input manual
+      - name: Decidir categoría
+        id: cat
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ "${{ github.event.schedule }}" = "0 9 * * *" ]; then
+              echo "which=brainrot" >> $GITHUB_OUTPUT
+            else
+              echo "which=horror" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "which=${{ github.event.inputs.category }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Tracker Brainrot
+        if: steps.cat.outputs.which == 'brainrot' || steps.cat.outputs.which == 'both'
+        run: python tracker.py brainrot
+
+      - name: Tracker Horror
+        if: steps.cat.outputs.which == 'horror' || steps.cat.outputs.which == 'both'
+        run: python tracker.py horror
 
       - name: Exportar dashboard JSON
         run: python export_dashboard.py
 
-      - name: Enviar reporte por Telegram
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python notifier.py
-
-      - name: Reporte semanal (solo lunes)
-        if: github.event.schedule == '0 9 * * *' && fromJSON(format('"{0}"', github.run_started_at))
+      - name: Reporte Telegram Brainrot
+        if: steps.cat.outputs.which == 'brainrot' || steps.cat.outputs.which == 'both'
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          if [ "$(date -u +%u)" = "1" ]; then python notifier.py --weekly; fi
+          python notifier.py brainrot
+          if [ "$(date -u +%u)" = "1" ]; then python notifier.py brainrot --weekly; fi
+
+      - name: Reporte Telegram Horror
+        if: steps.cat.outputs.which == 'horror' || steps.cat.outputs.which == 'both'
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python notifier.py horror
+          if [ "$(date -u +%u)" = "1" ]; then python notifier.py horror --weekly; fi
 
       - name: Commit cambios
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/
-          git diff --staged --quiet || git commit -m "track: $(date -u +%Y-%m-%d)"
-          git push
+          git diff --staged --quiet && echo "Sin cambios" && exit 0
+          git commit -m "track ${{ steps.cat.outputs.which }}: $(date -u +%Y-%m-%dT%H:%M)"
+          # Reintenta el push con rebase por si el otro job commiteó a la vez
+          for i in 1 2 3; do
+            git pull --rebase --autostash origin main && git push && break
+            echo "Reintento push $i…" && sleep 5
+          done
