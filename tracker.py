@@ -27,9 +27,9 @@ DB_PATH = ROOT / "data" / "tracker.db"
 
 # Palabras clave para identificar "brainrot-style". Edita libremente.
 KEYWORDS = [
-    "brainrot", "lucky block", "tsunami", "obby", "steal",
+    "brainrot", "lucky", "block", "tsunami", "obby", "steal",
     "escape", "tycoon", "rng", "skibidi", "merge", "grow a",
-    "race", "survive", "fisch", "anime",
+    "race", "survive", "fisch", "anime", "build", "guess",
 ]
 
 MIN_PLAYERS = 2_500          # umbral mínimo para empezar a trackear
