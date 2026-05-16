@@ -25,12 +25,14 @@ import requests
 ROOT = Path(__file__).parent
 
 # ─── Categorías ────────────────────────────────────────────────────────────────
-# Cada categoría tiene su propia lista de keywords y su propia base de datos.
+# Cada categoría tiene su propia lista de keywords, su propia base de datos
+# y su propio umbral mínimo de jugadores.
 # Para añadir una nueva categoría, basta con agregar una entrada aquí.
 CATEGORIES = {
     "brainrot": {
         "label": "Brainrot",
         "db": ROOT / "data" / "tracker_brainrot.db",
+        "min_players": 2670,
         "keywords": [
             "brainrot", "lucky block", "tsunami", "obby", "steal",
             "escape", "tycoon", "rng", "skibidi", "merge", "grow a",
@@ -40,6 +42,7 @@ CATEGORIES = {
     "horror": {
         "label": "Horror",
         "db": ROOT / "data" / "tracker_horror.db",
+        "min_players": 670,
         "keywords": [
             "horror", "scary", "nightmare", "haunted", "doors",
             "the mimic", "evade", "specimen", "backrooms", "slender",
@@ -50,7 +53,8 @@ CATEGORIES = {
     },
 }
 
-MIN_PLAYERS = 5_000          # umbral mínimo para empezar a trackear
+# Umbral por defecto si una categoría no define el suyo
+DEFAULT_MIN_PLAYERS = 5_000
 MAX_GAMES_TO_TRACK = 200     # tope para no saturar la API
 
 # Endpoints
@@ -184,9 +188,11 @@ def run(category: str):
     cfg = CATEGORIES[category]
     keywords = cfg["keywords"]
     db_path = cfg["db"]
+    min_players = cfg.get("min_players", DEFAULT_MIN_PLAYERS)
 
     now = datetime.now(timezone.utc).isoformat()
     print(f"▶ Tracker [{cfg['label']}] iniciado — {now}")
+    print(f"  Umbral mínimo: {min_players:,} jugadores")
 
     print("  Descargando lista de juegos desde Rolimons…")
     rolimons = fetch_rolimons_games()
@@ -200,7 +206,7 @@ def run(category: str):
             players = info[ROL_PLAYERS]
         except (IndexError, TypeError):
             continue
-        if players < MIN_PLAYERS:
+        if players < min_players:
             continue
         if not matches_keywords(name, keywords):
             continue
@@ -211,7 +217,7 @@ def run(category: str):
     print(f"  Candidatos tras filtro: {len(candidates)}")
 
     if not candidates:
-        print("  No hay candidatos. Revisa MIN_PLAYERS o las keywords.")
+        print("  No hay candidatos. Revisa min_players o las keywords.")
         return
 
     # Mapea place_id → universe_id para enriquecer
