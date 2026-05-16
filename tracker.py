@@ -27,12 +27,12 @@ DB_PATH = ROOT / "data" / "tracker.db"
 
 # Palabras clave para identificar "brainrot-style". Edita libremente.
 KEYWORDS = [
-    "brainrot", "lucky", "block", "tsunami", "obby", "steal",
+    "brainrot", "lucky block", "tsunami", "obby", "steal",
     "escape", "tycoon", "rng", "skibidi", "merge", "grow a",
-    "race", "survive", "fisch", "anime", "build", "guess",
+    "race", "survive", "fisch", "anime",
 ]
 
-MIN_PLAYERS = 2_500          # umbral mínimo para empezar a trackear
+MIN_PLAYERS = 5_000          # umbral mínimo para empezar a trackear
 MAX_GAMES_TO_TRACK = 200     # tope para no saturar la API
 
 # Endpoints
@@ -42,6 +42,33 @@ ROBLOX_GAMES_API = "https://games.roblox.com/v1/games"
 # Mapeo del formato Rolimons (índices del array por juego)
 # Formato real: [name, players, thumbnail_url, ...]
 ROL_NAME, ROL_PLAYERS, ROL_THUMB = 0, 1, 2
+
+HEADERS = {"User-Agent": "roblox-tracker/1.1"}
+
+
+def get_with_retry(url: str, max_retries: int = 4, timeout: int = 15):
+    """GET con reintentos y backoff exponencial ante rate limit / fallos.
+
+    Devuelve el objeto Response si tiene éxito, o None si agota reintentos.
+    """
+    for attempt in range(max_retries):
+        try:
+            r = requests.get(url, timeout=timeout, headers=HEADERS)
+            # Rate limited → espera y reintenta
+            if r.status_code == 429:
+                wait = 2 ** attempt + 1  # 2, 3, 5, 9 segundos
+                print(f"    rate limit (429), esperando {wait}s…", file=sys.stderr)
+                time.sleep(wait)
+                continue
+            if r.ok:
+                return r
+            # Otros errores HTTP: reintenta una vez con espera corta
+            time.sleep(1.5)
+        except requests.RequestException as e:
+            time.sleep(2 ** attempt)  # backoff ante timeout/conexión
+            if attempt == max_retries - 1:
+                print(f"    fallo definitivo para {url[:60]}…: {e}", file=sys.stderr)
+    return None
 
 
 # ─── Base de datos ─────────────────────────────────────────────────────────────
@@ -84,36 +111,49 @@ def matches_keywords(name: str) -> bool:
 
 
 def fetch_roblox_details(universe_ids: list[int]) -> list[dict]:
-    """games.roblox.com acepta hasta ~50 IDs por llamada."""
+    """games.roblox.com acepta hasta ~50 IDs por llamada. Con reintentos."""
     results = []
     for i in range(0, len(universe_ids), 50):
         batch = universe_ids[i:i + 50]
         params = "&".join(f"universeIds={uid}" for uid in batch)
         url = f"{ROBLOX_GAMES_API}?{params}"
-        try:
-            r = requests.get(url, timeout=20,
-                             headers={"User-Agent": "roblox-tracker/1.0"})
-            r.raise_for_status()
+        r = get_with_retry(url, max_retries=4, timeout=20)
+        if r is not None:
             results.extend(r.json().get("data", []))
-            time.sleep(1)  # respetuosos con la API
-        except requests.RequestException as e:
-            print(f"  ⚠ Error en batch {i}: {e}", file=sys.stderr)
+        else:
+            print(f"  ⚠ Batch {i}-{i+len(batch)} sin detalles "
+                  f"(fallback a Rolimons)", file=sys.stderr)
+        time.sleep(1)  # respetuosos con la API
     return results
 
 
 def place_to_universe(place_ids: list[int]) -> dict[int, int]:
-    """Convierte place_id → universe_id usando apis.roblox.com."""
+    """Convierte place_id → universe_id usando apis.roblox.com.
+
+    Usa reintentos. Reporta cuántos fallaron para no perderlos en silencio.
+    """
     mapping = {}
-    for pid in place_ids:
-        try:
-            url = f"https://apis.roblox.com/universes/v1/places/{pid}/universe"
-            r = requests.get(url, timeout=10,
-                             headers={"User-Agent": "roblox-tracker/1.0"})
-            if r.ok:
-                mapping[pid] = r.json().get("universeId")
-            time.sleep(0.1)
-        except requests.RequestException:
-            pass
+    failed = []
+    for i, pid in enumerate(place_ids):
+        url = f"https://apis.roblox.com/universes/v1/places/{pid}/universe"
+        r = get_with_retry(url, max_retries=4, timeout=10)
+        if r is not None:
+            uid = r.json().get("universeId")
+            if uid:
+                mapping[pid] = uid
+            else:
+                failed.append(pid)
+        else:
+            failed.append(pid)
+        # Pausa adaptativa: más lenta para no provocar rate limiting
+        time.sleep(0.25)
+        if (i + 1) % 25 == 0:
+            print(f"    universe IDs: {i + 1}/{len(place_ids)}…")
+
+    if failed:
+        print(f"  ⚠ {len(failed)} place_ids sin universe_id "
+              f"(se usará el player count de Rolimons como fallback)",
+              file=sys.stderr)
     return mapping
 
 
@@ -162,20 +202,40 @@ def run():
     # Guardar snapshot
     con = init_db()
     rows = []
-    for place_id, name, _ in candidates:
+    enriched = 0       # cuántos tienen datos oficiales de Roblox
+    fallback = 0       # cuántos usan solo el dato de Rolimons
+    skipped = 0        # cuántos se descartan por no tener ningún dato fiable
+
+    for place_id, name, rolimons_players in candidates:
         uid = mapping.get(place_id)
         d = detail_map.get(uid, {}) if uid else {}
+
+        # El player count de Roblox (playing) es el preferido, pero si no
+        # está disponible usamos el de Rolimons, que también es fiable.
+        roblox_playing = d.get("playing")
+        if roblox_playing is not None and roblox_playing > 0:
+            player_count = roblox_playing
+            enriched += 1
+        elif rolimons_players and rolimons_players > 0:
+            player_count = rolimons_players
+            fallback += 1
+        else:
+            # Sin ningún dato válido → no guardamos un 0 falso, lo saltamos
+            skipped += 1
+            continue
+
         rows.append((
             place_id,
             uid,
             d.get("name", name),
-            d.get("playing", 0),
+            player_count,
             d.get("visits"),
             d.get("favoritedCount"),
             None,  # up_votes — requiere otra llamada, opcional
             None,  # down_votes
             now,
         ))
+
     con.executemany(
         """INSERT INTO snapshots
            (place_id, universe_id, name, player_count, visits, favorites, up_votes, down_votes, ts)
@@ -186,6 +246,10 @@ def run():
     con.close()
 
     print(f"✓ Guardados {len(rows)} snapshots en {DB_PATH}")
+    print(f"  ├─ {enriched} con datos oficiales de Roblox (visits/favorites incl.)")
+    print(f"  ├─ {fallback} con player count de Rolimons (sin enriquecer)")
+    if skipped:
+        print(f"  └─ {skipped} descartados (sin ningún dato fiable, NO se guardó 0)")
 
 
 if __name__ == "__main__":
