@@ -32,7 +32,7 @@ KEYWORDS = [
     "race", "survive", "fisch", "anime",
 ]
 
-MIN_PLAYERS = 5_000          # umbral mínimo para empezar a trackear
+MIN_PLAYERS = 2_500          # umbral mínimo para empezar a trackear
 MAX_GAMES_TO_TRACK = 200     # tope para no saturar la API
 
 # Endpoints
